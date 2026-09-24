@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>九九フラッシュカード</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Kosugi+Maru&family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#1c3a32;
+    --bg-deep:#152e28;
+    --panel:#24463c;
+    --chalk:#f4efe0;
+    --chalk-dim:#cdd9d2;
+    --card-bg:#f5efe0;
+    --card-line:#d8cfb2;
+    --ink:#233b34;
+    --c1:#f4d35e; --c1d:#8a6d1e;
+    --c2:#ee6c4d; --c2d:#7a2f1c;
+    --c3:#6fb1e8; --c3d:#1c4d75;
+    --c4:#f0a3c4; --c4d:#7a2f4e;
+    --c5:#8fd9a8; --c5d:#22623a;
+    --c6:#c1a6e8; --c6d:#4a2f75;
+    --c7:#f2a65a; --c7d:#7a4a12;
+    --c8:#e0685e; --c8d:#6e1f18;
+    --c9:#5cc7c2; --c9d:#1a5a56;
+    --radius:22px;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    min-height:100vh;
+    background:
+      radial-gradient(1200px 800px at 50% -10%, var(--panel) 0%, var(--bg) 55%, var(--bg-deep) 100%);
+    color:var(--chalk);
+    font-family:'Zen Maru Gothic','Kosugi Maru',sans-serif;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+  }
+  .stage{
+    width:100%;
+    max-width:640px;
+  }
+  button{ font-family:inherit; }
+  :focus-visible{ outline:3px solid var(--c1); outline-offset:3px; }
+
+  /* ---------- COVER ---------- */
+  .cover{
+    text-align:center;
+  }
+  .cover h1{
+    font-family:'Kosugi Maru',sans-serif;
+    font-size:clamp(28px,7vw,42px);
+    margin:0 0 4px;
+    letter-spacing:.06em;
+    color:var(--chalk);
+    text-shadow:0 2px 0 rgba(0,0,0,.25);
+  }
+  .cover .sub{
+    margin:0 0 28px;
+    color:var(--chalk-dim);
+    font-size:14px;
+    letter-spacing:.08em;
+  }
+  .panel{
+    background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.01));
+    border:2px dashed rgba(244,239,224,.35);
+    border-radius:var(--radius);
+    padding:22px 20px;
+    margin-bottom:20px;
+  }
+  .panel h2{
+    font-size:15px;
+    margin:0 0 14px;
+    color:var(--chalk);
+    font-weight:700;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .panel h2 .hint{
+    font-weight:500;
+    font-size:12px;
+    color:var(--chalk-dim);
+  }
+  .dan-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:10px;
+  }
+  .dan-btn{
+    position:relative;
+    aspect-ratio:1/1;
+    border-radius:16px;
+    border:3px solid transparent;
+    background:var(--dc);
+    color:#28221a;
+    font-size:22px;
+    font-weight:700;
+    cursor:pointer;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    line-height:1.1;
+    transition:transform .12s ease, box-shadow .12s ease, border-color .12s ease;
+    box-shadow:0 4px 0 var(--dd);
+  }
+  .dan-btn span{ font-size:11px; font-weight:500; opacity:.75; }
+  .dan-btn:active{ transform:translateY(2px); box-shadow:0 2px 0 var(--dd); }
+  .dan-btn.selected{
+    border-color:var(--chalk);
+    transform:translateY(2px);
+    box-shadow:0 2px 0 var(--dd), 0 0 0 3px rgba(244,239,224,.25);
+  }
+  .mode-row{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+  .mode-btn{
+    flex:1 1 0;
+    min-width:104px;
+    padding:14px 8px;
+    border-radius:14px;
+    border:2px solid rgba(244,239,224,.35);
+    background:transparent;
+    color:var(--chalk);
+    font-size:14px;
+    font-weight:700;
+    cursor:pointer;
+    transition:background .12s ease, border-color .12s ease, transform .12s ease;
+  }
+  .mode-btn .desc{
+    display:block;
+    font-size:11px;
+    font-weight:500;
+    color:var(--chalk-dim);
+    margin-top:3px;
+  }
+  .mode-btn.selected{
+    background:var(--c1);
+    color:#28221a;
+    border-color:var(--c1);
+    transform:translateY(-2px);
+  }
+  .mode-btn.selected .desc{ color:#5a4a1a; }
+
+  .start-btn{
+    width:100%;
+    padding:18px;
+    border-radius:18px;
+    border:none;
+    background:var(--c5);
+    color:#173321;
+    font-size:19px;
+    font-weight:900;
+    letter-spacing:.06em;
+    cursor:pointer;
+    box-shadow:0 5px 0 var(--c5d);
+    transition:transform .12s ease, box-shadow .12s ease, opacity .12s ease;
+  }
+  .start-btn:active{ transform:translateY(3px); box-shadow:0 2px 0 var(--c5d); }
+  .start-btn:disabled{
+    opacity:.4;
+    cursor:not-allowed;
+    box-shadow:0 5px 0 rgba(0,0,0,.2);
+  }
+
+  /* ---------- CARD SCREEN ---------- */
+  .card-screen{ display:none; }
+  .topbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:18px;
+    color:var(--chalk-dim);
+    font-size:13px;
+  }
+  .back-btn{
+    background:none;
+    border:2px solid rgba(244,239,224,.35);
+    color:var(--chalk);
+    padding:8px 14px;
+    border-radius:12px;
+    font-size:13px;
+    font-weight:700;
+    cursor:pointer;
+  }
+  .progress-wrap{
+    text-align:right;
+  }
+  .progress-text{ font-weight:700; color:var(--chalk); }
+  .progress-bar{
+    width:120px;
+    height:5px;
+    border-radius:3px;
+    background:rgba(244,239,224,.2);
+    margin-top:6px;
+    overflow:hidden;
+  }
+  .progress-fill{
+    height:100%;
+    background:var(--c5);
+    border-radius:3px;
+    transition:width .25s ease;
+  }
+
+  .card{
+    position:relative;
+    background:var(--card-bg);
+    border-radius:28px;
+    padding:38px 20px 34px;
+    min-height:340px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    box-shadow:0 10px 0 rgba(0,0,0,.25), 0 14px 30px rgba(0,0,0,.25);
+    border:3px solid var(--card-line);
+    user-select:none;
+    transition:transform .08s ease;
+  }
+  .card:active{ transform:scale(.985); }
+  .dan-badge{
+    position:absolute;
+    top:16px;
+    left:18px;
+    font-size:12px;
+    font-weight:700;
+    color:#8a8065;
+    background:rgba(0,0,0,.05);
+    padding:4px 10px;
+    border-radius:999px;
+  }
+  .reading{
+    font-size:clamp(16px,4.6vw,22px);
+    font-weight:700;
+    color:#9a8f6e;
+    min-height:1.6em;
+    letter-spacing:.06em;
+    text-align:center;
+    transition:color .15s ease;
+    padding-bottom:14px;
+    margin-bottom:14px;
+    border-bottom:2px dashed var(--card-line);
+    width:100%;
+  }
+  .reading.shown{ color:var(--ink); }
+  .equation{
+    font-family:'Kosugi Maru',sans-serif;
+    font-size:clamp(52px,16vw,84px);
+    font-weight:400;
+    color:var(--ink);
+    letter-spacing:.02em;
+    display:flex;
+    align-items:baseline;
+    gap:.18em;
+    margin-top:4px;
+  }
+  .equation .ans{
+    color:var(--c8d);
+    transition:color .15s ease;
+  }
+  .equation .ans.placeholder{ color:#b9ae8c; }
+  .tap-hint{
+    margin-top:18px;
+    font-size:13px;
+    color:var(--chalk-dim);
+    text-align:center;
+    min-height:1.4em;
+  }
+  .nav-row{
+    display:flex;
+    gap:12px;
+    margin-top:18px;
+  }
+  .nav-btn{
+    flex:1;
+    padding:15px;
+    border-radius:16px;
+    border:none;
+    font-size:15px;
+    font-weight:800;
+    cursor:pointer;
+    transition:transform .1s ease, opacity .1s ease;
+  }
+  .nav-btn:active{ transform:translateY(2px); }
+  .nav-btn.prev{
+    background:transparent;
+    border:2px solid rgba(244,239,224,.35);
+    color:var(--chalk);
+  }
+  .nav-btn.next{
+    background:var(--c3);
+    color:#0e2c40;
+    box-shadow:0 4px 0 var(--c3d);
+  }
+  .nav-btn:disabled{ opacity:.35; cursor:not-allowed; }
+
+  /* ---------- DONE OVERLAY ---------- */
+  .done{
+    display:none;
+    text-align:center;
+    padding:40px 10px;
+  }
+  .done .big{
+    font-family:'Kosugi Maru',sans-serif;
+    font-size:clamp(26px,7vw,36px);
+    margin-bottom:8px;
+  }
+  .done p{ color:var(--chalk-dim); margin-bottom:26px; font-size:14px; }
+  .done-row{ display:flex; gap:12px; }
+  .done-row button{
+    flex:1;
+    padding:16px;
+    border-radius:16px;
+    border:none;
+    font-weight:800;
+    font-size:14px;
+    cursor:pointer;
+  }
+  .again-btn{ background:var(--c5); color:#173321; box-shadow:0 4px 0 var(--c5d); }
+  .settings-btn{ background:transparent; border:2px solid rgba(244,239,224,.35)!important; color:var(--chalk); }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ transition:none!important; }
+  }
+</style>
+</head>
+<body>
+<div class="stage">
+
+  <!-- ============ COVER ============ -->
+  <div class="cover" id="coverScreen">
+    <h1>九九フラッシュカード</h1>
+    <p class="sub">だんと じゅんばんを えらんで はじめよう</p>
+
+    <div class="panel">
+      <h2>だんを えらぶ <span class="hint">（いくつでも えらべるよ）</span></h2>
+      <div class="dan-grid" id="danGrid"></div>
+    </div>
+
+    <div class="panel">
+      <h2>でる じゅんばん</h2>
+      <div class="mode-row" id="modeRow">
+        <button class="mode-btn selected" data-mode="sequential">じゅんばん<span class="desc">１→９の じゅん</span></button>
+        <button class="mode-btn" data-mode="reverse">ぎゃく<span class="desc">９→１の じゅん</span></button>
+        <button class="mode-btn" data-mode="random">ランダム<span class="desc">ばらばらの じゅん</span></button>
+      </div>
+    </div>
+
+    <button class="start-btn" id="startBtn" disabled>はじめる</button>
+  </div>
+
+  <!-- ============ CARD SCREEN ============ -->
+  <div class="card-screen" id="cardScreen">
+    <div class="topbar">
+      <button class="back-btn" id="backBtn">← せってい</button>
+      <div class="progress-wrap">
+        <div class="progress-text" id="progressText">1 / 9</div>
+        <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+      </div>
+    </div>
+
+    <div class="card" id="card">
+      <div class="dan-badge" id="danBadge">2のだん</div>
+      <div class="reading" id="readingText">　</div>
+      <div class="equation" id="equationText"></div>
+    </div>
+    <div class="tap-hint" id="tapHint">タップして こたえを みる</div>
+
+    <div class="nav-row">
+      <button class="nav-btn prev" id="prevBtn">← まえ</button>
+      <button class="nav-btn next" id="nextBtn">つぎ →</button>
+    </div>
+
+    <div class="done" id="doneScreen">
+      <div class="big">🎉 ぜんぶ できたね！</div>
+      <p id="doneSummary"></p>
+      <div class="done-row">
+        <button class="again-btn" id="againBtn">もういちど</button>
+        <button class="settings-btn" id="toSettingsBtn">せっていに もどる</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ---------------- 九九データ ---------------- */
+// 各段: [b, 答え, よみかた]
+const KUKU = {
+  1:[[1,1,"いんいちがいち"],[2,2,"いんにがに"],[3,3,"いんさんがさん"],[4,4,"いんしがし"],[5,5,"いんごがご"],[6,6,"いんろくがろく"],[7,7,"いんしちがしち"],[8,8,"いんはちがはち"],[9,9,"いんくがく"]],
+  2:[[1,2,"ににんがに"],[2,4,"にんがし"],[3,6,"にさんがろく"],[4,8,"にしがはち"],[5,10,"にごじゅう"],[6,12,"にろくじゅうに"],[7,14,"にしちじゅうし"],[8,16,"にはちじゅうろく"],[9,18,"にくじゅうはち"]],
+  3:[[1,3,"さんいちがさん"],[2,6,"さんにがろく"],[3,9,"さざんがく"],[4,12,"さんしじゅうに"],[5,15,"さんごじゅうご"],[6,18,"さぶろくじゅうはち"],[7,21,"さんしちにじゅういち"],[8,24,"さんぱにじゅうし"],[9,27,"さんくにじゅうしち"]],
+  4:[[1,4,"しいちがし"],[2,8,"しにがはち"],[3,12,"しさんじゅうに"],[4,16,"ししじゅうろく"],[5,20,"しごにじゅう"],[6,24,"しろくにじゅうし"],[7,28,"ししちにじゅうはち"],[8,32,"しはさんじゅうに"],[9,36,"しくさんじゅうろく"]],
+  5:[[1,5,"ごいちがご"],[2,10,"ごにじゅう"],[3,15,"ごさんじゅうご"],[4,20,"ごしにじゅう"],[5,25,"ごごにじゅうご"],[6,30,"ごろくさんじゅう"],[7,35,"ごしちさんじゅうご"],[8,40,"ごはしじゅう"],[9,45,"ごくしじゅうご"]],
+  6:[[1,6,"ろくいちがろく"],[2,12,"ろくにじゅうに"],[3,18,"ろくさんじゅうはち"],[4,24,"ろくしにじゅうし"],[5,30,"ろくごさんじゅう"],[6,36,"ろくろくさんじゅうろく"],[7,42,"ろくしちしじゅうに"],[8,48,"ろくはしじゅうはち"],[9,54,"ろっくごじゅうし"]],
+  7:[[1,7,"しちいちがしち"],[2,14,"しちにじゅうし"],[3,21,"しちさんにじゅういち"],[4,28,"しちしにじゅうはち"],[5,35,"しちごさんじゅうご"],[6,42,"しちろくしじゅうに"],[7,49,"しちしちしじゅうく"],[8,56,"しちはごじゅうろく"],[9,63,"しちくろくじゅうさん"]],
+  8:[[1,8,"はちいちがはち"],[2,16,"はちにじゅうろく"],[3,24,"はっさんにじゅうし"],[4,32,"はっしさんじゅうに"],[5,40,"はちごしじゅう"],[6,48,"はちろくしじゅうはち"],[7,56,"はちしちごじゅうろく"],[8,64,"はっぱろくじゅうし"],[9,72,"はっくしちじゅうに"]],
+  9:[[1,9,"くいちがく"],[2,18,"くにじゅうはち"],[3,27,"くさんにじゅうしち"],[4,36,"くしさんじゅうろく"],[5,45,"くごしじゅうご"],[6,54,"くろくごじゅうし"],[7,63,"くしちろくじゅうさん"],[8,72,"くはしちじゅうに"],[9,81,"くくはちじゅういち"]]
+};
+
+/* ---------------- 状態 ---------------- */
+const selectedDans = new Set();
+let mode = "sequential";
+let queue = [];
+let idx = 0;
+let revealed = false;
+
+/* ---------------- カバー画面の構築 ---------------- */
+const danGrid = document.getElementById('danGrid');
+for(let d=1; d<=9; d++){
+  const btn = document.createElement('button');
+  btn.className = 'dan-btn';
+  btn.style.setProperty('--dc', `var(--c${d})`);
+  btn.style.setProperty('--dd', `var(--c${d}d)`);
+  btn.innerHTML = `${d}<span>のだん</span>`;
+  btn.addEventListener('click', () => {
+    if(selectedDans.has(d)){ selectedDans.delete(d); btn.classList.remove('selected'); }
+    else { selectedDans.add(d); btn.classList.add('selected'); }
+    updateStartBtn();
+  });
+  danGrid.appendChild(btn);
+}
+
+document.querySelectorAll('.mode-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.mode-btn').forEach(b=>b.classList.remove('selected'));
+    btn.classList.add('selected');
+    mode = btn.dataset.mode;
+  });
+});
+
+const startBtn = document.getElementById('startBtn');
+function updateStartBtn(){
+  startBtn.disabled = selectedDans.size === 0;
+}
+
+function shuffle(arr){
+  for(let i=arr.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]] = [arr[j],arr[i]];
+  }
+  return arr;
+}
+
+function buildQueue(){
+  const dans = Array.from(selectedDans).sort((a,b)=>a-b);
+  let list = [];
+  dans.forEach(d=>{
+    KUKU[d].forEach(([b,answer,reading])=>{
+      list.push({a:d,b,answer,reading});
+    });
+  });
+  if(mode === 'reverse'){ list.reverse(); }
+  else if(mode === 'random'){ list = shuffle(list); }
+  return list;
+}
+
+/* ---------------- 画面切り替え ---------------- */
+const coverScreen = document.getElementById('coverScreen');
+const cardScreen = document.getElementById('cardScreen');
+const doneScreen = document.getElementById('doneScreen');
+const card = document.getElementById('card');
+const navRow = document.querySelector('.nav-row');
+
+startBtn.addEventListener('click', ()=>{
+  queue = buildQueue();
+  idx = 0;
+  revealed = false;
+  coverScreen.style.display = 'none';
+  cardScreen.style.display = 'block';
+  doneScreen.style.display = 'none';
+  card.style.display = 'flex';
+  navRow.style.display = 'flex';
+  document.getElementById('tapHint').style.display = 'block';
+  renderCard();
+});
+
+document.getElementById('backBtn').addEventListener('click', goToSettings);
+document.getElementById('toSettingsBtn').addEventListener('click', goToSettings);
+
+function goToSettings(){
+  cardScreen.style.display = 'none';
+  coverScreen.style.display = 'block';
+}
+
+document.getElementById('againBtn').addEventListener('click', ()=>{
+  queue = buildQueue();
+  idx = 0;
+  revealed = false;
+  doneScreen.style.display = 'none';
+  card.style.display = 'flex';
+  navRow.style.display = 'flex';
+  document.getElementById('tapHint').style.display = 'block';
+  renderCard();
+});
+
+/* ---------------- カード表示 ---------------- */
+const readingText = document.getElementById('readingText');
+const equationText = document.getElementById('equationText');
+const danBadge = document.getElementById('danBadge');
+const tapHint = document.getElementById('tapHint');
+const progressText = document.getElementById('progressText');
+const progressFill = document.getElementById('progressFill');
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+
+function renderCard(){
+  const item = queue[idx];
+  danBadge.textContent = `${item.a}のだん`;
+  progressText.textContent = `${idx+1} / ${queue.length}`;
+  progressFill.style.width = `${((idx+1)/queue.length)*100}%`;
+  prevBtn.disabled = idx === 0;
+  nextBtn.textContent = (idx === queue.length-1) ? 'おわり' : 'つぎ →';
+  showUnrevealed(item);
+}
+
+function showUnrevealed(item){
+  revealed = false;
+  readingText.textContent = '　';
+  readingText.classList.remove('shown');
+  equationText.innerHTML = `<span>${item.a}</span><span>×</span><span>${item.b}</span><span>=</span><span class="ans placeholder">？</span>`;
+  tapHint.textContent = 'タップして こたえを みる';
+}
+
+function showRevealed(item){
+  revealed = true;
+  readingText.textContent = item.reading;
+  readingText.classList.add('shown');
+  equationText.innerHTML = `<span>${item.a}</span><span>×</span><span>${item.b}</span><span>=</span><span class="ans">${item.answer}</span>`;
+  tapHint.textContent = 'もういちど タップで もどる';
+}
+
+card.addEventListener('click', ()=>{
+  const item = queue[idx];
+  if(revealed){ showUnrevealed(item); }
+  else{ showRevealed(item); }
+});
+
+prevBtn.addEventListener('click', ()=>{
+  if(idx > 0){ idx--; renderCard(); }
+});
+
+nextBtn.addEventListener('click', ()=>{
+  if(idx < queue.length - 1){
+    idx++;
+    renderCard();
+  } else {
+    // 終了
+    card.style.display = 'none';
+    navRow.style.display = 'none';
+    tapHint.style.display = 'none';
+    doneScreen.style.display = 'block';
+    document.getElementById('doneSummary').textContent =
+      `${Array.from(selectedDans).sort((a,b)=>a-b).map(d=>d+'のだん').join('、')} を ぜんぶ れんしゅうしたよ！`;
+  }
+});
+
+updateStartBtn();
+</script>
+</body>
+</html>
